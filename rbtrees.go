@@ -268,6 +268,10 @@ func main() {
 
 		cmd := strings.Fields(cmdstr)
 
+		if len(cmd) == 0 {
+			continue
+		}
+
 		switch cmd[0] {
 		case "r":
 			if len(cmd) != 2 {
