@@ -277,79 +277,83 @@ func main() {
 		cmd := strings.Fields(cmdstr)
 
 		switch cmd[0] {
-			case "r":
-				if len(cmd) != 2 {
-					fmt.Println("Usage: r <n> where n is the size and range of the generated tree")
-					continue
-				}
-				n, nerr := strconv.Atoi(cmd[1])
+		case "r":
+			if len(cmd) != 2 {
+				fmt.Println("Usage: r <n>")
+				continue
+			}
+			n, nerr := strconv.Atoi(cmd[1])
+			if nerr != nil {
+				fmt.Println("Usage: r <n>")
+				continue
+			}
+			t = randomtree(n)
+		case "s":
+			if len(cmd) < 2 {
+				fmt.Println("Usage: s <n1 n2 ...>")
+				continue
+			}
+			for _,tok := range cmd[1:]{
+				n, nerr := strconv.Atoi(tok)
 				if nerr != nil {
-					fmt.Println("Usage: r <n> where n is the size and range of the generated tree")
+					fmt.Println("bad token: " + tok)
 					continue
 				}
-				t = randomtree(n)
-			case "s":
-				if len(cmd) < 2 {
-					fmt.Println("Usage: s <n1 n2 ...>")
-					continue
+				if search(t.root, n) != nil{
+					fmt.Println(tok + " : yes")
+				} else {
+					fmt.Println(tok + " : no")
 				}
-				for _,tok := range cmd[1:]{
-					n, nerr := strconv.Atoi(tok)
-					if nerr != nil {
-						fmt.Println("bad token: " + tok)
-						continue
-					}
-					if search(t.root, n) != nil{
-						fmt.Println(tok + " : yes")
-					} else {
-						fmt.Println(tok + " : no")
-					}
-				}
-			case "p":
+			}
+		case "p":
+			if t.root == nil{
+				fmt.Println("tree is empty")
+			} else {
 				printinorder(t.root)
-			case "g":
-				if len(cmd) != 2 {
-					fmt.Println("Usage: g <name>")
+			}
+		case "g":
+			if len(cmd) != 2 {
+				fmt.Println("Usage: g <name>")
+				continue
+			}
+			graph(t.root, cmd[1])
+		case "i":
+			if len(cmd) < 2 {
+				fmt.Println("Usage: i <n1 n2 ...>")
+				continue
+			}
+			for _,tok := range cmd[1:]{
+				n, nerr := strconv.Atoi(tok)
+				if nerr != nil {
+					fmt.Println("bad token: " + tok)
 					continue
 				}
-				graph(t.root, cmd[1])
-			case "i":
-				if len(cmd) < 2 {
-					fmt.Println("Usage: i <n1 n2 ...>")
-					continue
-				}
-				for _,tok := range cmd[1:]{
-					n, nerr := strconv.Atoi(tok)
-					if nerr != nil {
-						fmt.Println("bad token: " + tok)
-						continue
-					}
-					RBTreeinsert(t, n)
-				}
-			case "h":
-				fmt.Println("r <n>\t\t: generate random RB-tree with n nodes with values from 0-n")
-				fmt.Println("s <n1, n2, ...>\t: determines if value(s) are present in the tree")
-				fmt.Println("i <n1, n2, ...>\t: insert value(s) into RB-tree")
-				fmt.Println("d <n1, n2, ...>\t: delete value(s) from RB-tree")
-				fmt.Println("g <name>\t: draw RB-tree to PDF and dot files")
-				fmt.Println("p\t\t: print tree in-order")
-				fmt.Println("h\t\t: print this message")
-				fmt.Println("q\t\t: exit program")
-			case "q":
-				return
-			case "lr":
-				n, nerr := strconv.Atoi(cmd[1])
-				if nerr == nil{
-					leftrotate(t.root, search(t.root, n))
-				}
-			case "rr":
-				n, nerr := strconv.Atoi(cmd[1])
-				if nerr == nil{
-					rightrotate(t.root, search(t.root, n))
-				}
-			default:
-				fmt.Println("unrecognized command: " + cmd[0])
-				fmt.Println("type 'h' for list of commands")
+				RBTreeinsert(t, n)
+			}
+		case "h":
+			fmt.Println("r <n>\t\t: generate random RB-tree with n nodes with values from 0-n")
+			fmt.Println("s <n1, n2, ...>\t: determines if value(s) are present in the tree")
+			fmt.Println("i <n1, n2, ...>\t: insert value(s) into RB-tree")
+			fmt.Println("d <n1, n2, ...>\t: delete value(s) from RB-tree")
+			fmt.Println("g <name>\t: draw RB-tree to PDF and dot files")
+			fmt.Println("p\t\t: print tree in-order")
+			fmt.Println("h\t\t: print this message")
+			fmt.Println("q\t\t: exit program")
+		case "q":
+			return
+		case "lr":
+			n, nerr := strconv.Atoi(cmd[1])
+			if nerr == nil{
+				leftrotate(t.root, search(t.root, n))
+			}
+		case "rr":
+			n, nerr := strconv.Atoi(cmd[1])
+			if nerr == nil{
+				rightrotate(t.root, search(t.root, n))
+			}
+		default:
+			fmt.Println("unrecognized command: " + cmd[0])
+			fmt.Println("type 'h' for list of commands")
 		}
 	}
 }
