@@ -22,6 +22,8 @@ type RBNode struct {
 	red                 bool
 }
 
+var niln *RBNode = &RBNode{red : false}
+
 func newtree() *RBTree {
 	return &RBTree{}
 }
@@ -31,14 +33,14 @@ func leftrotate(t *RBNode, x *RBNode) {
 	y := x.right
 	x.right = y.left
 
-	if y.left != nil {
+	if y.left != niln {
 		y.left.parent = x
 	}
 
 	y.parent = x.parent
 
-	if x.parent == nil {
-		t = y
+	if x.parent == niln {
+		*t = *y
 	} else if x == x.parent.left {
 		x.parent.left = y
 	} else {
@@ -54,14 +56,14 @@ func rightrotate(t *RBNode, x *RBNode) {
 	y := x.left
 	x.left = y.right
 
-	if y.right != nil {
+	if y.right != niln {
 		y.right.parent = x
 	}
 
 	y.parent = x.parent
 
-	if x.parent == nil {
-		t = y
+	if x.parent == niln {
+		*t = *y
 	} else if x == x.parent.right {
 		x.parent.right = y
 	} else {
@@ -74,67 +76,53 @@ func rightrotate(t *RBNode, x *RBNode) {
 
 func RBTreeinsert(t *RBTree, data int) {
 
-	x := &RBNode{data, nil, nil, nil, true}
-	treeinsert(t, x)
+	z := &RBNode{data, niln, niln, niln, true}
+	treeinsert(t, z)
 
-/*
-	for x != t.root && x.parent != nil && x.parent.red && x.red {
-
-		parentpt := x.parent
-		gparentpt := x.parent.parent
-
-		if gparentpt != nil && parentpt == gparentpt.left{
-
-			unclept := gparentpt.right
-
-			if unclept != nil && unclept.red {
-				gparentpt.red = true
-				parentpt.red = false
+	for z.parent.red {
+		if z.parent == z.parent.parent.left{
+			unclept := z.parent.parent.right
+			if unclept.red {
+				z.parent.red = false
 				unclept.red = false
-				*x = *gparentpt
+				z.parent.parent.red = true
+				z = z.parent.parent
 			} else {
-				if x == parentpt.right {
-					leftrotate(t.root, parentpt)
-					x = parentpt
-					parentpt = x.parent
+				if z == z.parent.right{
+					z = z.parent
+					leftrotate(t.root, z)
 				}
-				rightrotate(t.root, gparentpt)
-				tmp := parentpt.red
-				parentpt.red = gparentpt.red
-				gparentpt.red = tmp
-				x = parentpt
+				z.parent.red = false
+				z.parent.parent.red = true
+				rightrotate(t.root, z.parent.parent)
 			}
-		} else if gparentpt != nil{
-
-			unclept := gparentpt.left
-
-			if unclept != nil && unclept.red {
-				gparentpt.red = true
-				parentpt.red = false
+		} else {
+			unclept := z.parent.parent.left
+			if unclept.red {
+				z.parent.red = false
 				unclept.red = false
-				x = gparentpt
+				z.parent.parent.red = true
+				z = z.parent.parent
 			} else {
-				if x == parentpt.left {
-					rightrotate(t.root, parentpt)
-					x = parentpt
-					parentpt = x.parent
+				if z == z.parent.left{
+					z = z.parent
+					rightrotate(t.root, z)
 				}
-				leftrotate(t.root, gparentpt)
-				tmp := parentpt.red
-				parentpt.red = gparentpt.red
-				gparentpt.red = tmp
-				x = parentpt
+				z.parent.red = false
+				z.parent.parent.red = true
+				leftrotate(t.root, z.parent.parent)
 			}
 		}
 	}
+
 	t.root.red = false
-	*/
 }
 
 func treeinsert(tree *RBTree, x *RBNode) {
 
 	if tree.root == nil {
 		tree.root = x
+		tree.root.red = false
 		return
 	}
 
@@ -145,14 +133,14 @@ func treeinsert(tree *RBTree, x *RBNode) {
 	}
 
 	if x.data > t.data {
-		if t.right == nil {
+		if t.right == niln {
 			t.right = x
 			x.parent = t
 			return
 		}
 		treeinsert(&RBTree{t.right}, x)
 	} else {
-		if t.left == nil {
+		if t.left == niln {
 			t.left = x
 			x.parent = t
 			return
@@ -163,7 +151,7 @@ func treeinsert(tree *RBTree, x *RBNode) {
 
 func printinorder(t *RBNode) {
 
-	if t == nil {
+	if t == niln {
 		return
 	}
 
@@ -179,7 +167,7 @@ func printinorder(t *RBNode) {
 
 func graph(t *RBNode, fn string) {
 
-	if t == nil {
+	if t == niln {
 		fmt.Println("tree is empty")
 		return
 	}
@@ -214,7 +202,7 @@ func helper_graph(root *RBNode, f *os.File) {
 		f.WriteString("\t" + label + " [fillcolor=black]\n")
 	}
 
-	if root.left != nil {
+	if root.left != niln {
 		f.WriteString("\t" + label + " -> " + strconv.Itoa(root.left.data) + "\n")
 		helper_graph(root.left, f)
 	} else {
@@ -222,7 +210,7 @@ func helper_graph(root *RBNode, f *os.File) {
 		f.WriteString("\tnill" + label + " [color=white, fillcolor=white]\n")
 	}
 
-	if root.right != nil {
+	if root.right != niln {
 		f.WriteString("\t" + label + " -> " + strconv.Itoa(root.right.data) + "\n")
 		helper_graph(root.right, f)
 	} else {
@@ -247,8 +235,8 @@ func randomtree(n int) *RBTree {
 func search(t *RBNode, n int) (*RBNode) {
 
 	switch {
-	case t == nil:
-		return nil
+	case t == niln:
+		return niln
 	case n < t.data:
 		return search(t.left, n)
 	case n > t.data:
@@ -261,6 +249,10 @@ func search(t *RBNode, n int) (*RBNode) {
 
 func main() {
 
+	niln.left = niln
+	niln.right = niln
+	niln.parent = niln
+	niln.red = false
 	t := newtree()
 
 	fmt.Println("type 'h' to see list of commands")
@@ -299,14 +291,14 @@ func main() {
 					fmt.Println("bad token: " + tok)
 					continue
 				}
-				if search(t.root, n) != nil{
+				if search(t.root, n) != niln{
 					fmt.Println(tok + " : yes")
 				} else {
 					fmt.Println(tok + " : no")
 				}
 			}
 		case "p":
-			if t.root == nil{
+			if t.root == niln{
 				fmt.Println("tree is empty")
 			} else {
 				printinorder(t.root)
